@@ -1,4 +1,3 @@
-require 'byebug'
 require 'pathname'
 require 'sequel'
 require 'resolv'
