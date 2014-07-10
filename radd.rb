@@ -52,6 +52,10 @@ module Radd
       end      
     end
 
+    def password=(password)
+      self.password_hash = BCrypt::Password.create(password)
+    end
+
     def validate
       super
       errors.add(:name, "is invalid") if !name || !name.match(/\A[a-z0-9]([A-z0-9_\-]*)\z/)
