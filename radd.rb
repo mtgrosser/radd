@@ -1,17 +1,13 @@
 require 'byebug'
 require 'pathname'
 require 'sequel'
-require 'net/http'
 require 'resolv'
+require 'bcrypt'
 
 module Radd
   class << self
     def root
       Pathname.new(__FILE__).dirname
-    end
-
-    def db
-      root.join('db', 'radd.db')
     end
 
     def zone
@@ -31,12 +27,13 @@ module Radd
     end
 
     def authorized?(name, password)
-      !!Record.authorize(name, password)
+      return false unless record = Record.where(name: name).first
+      BCrypt::Password.new(record.password_hash) == password
     end
   end
 end
 
-DB = Sequel.sqlite(Radd.db.to_s)
+DB = Sequel.sqlite(Radd.root.join('db', 'radd.sqlite3').to_s)
 
 Radd::IP = Proc.new do |env|
   [200, {"Content-Type" => "text/plain"}, [env['REMOTE_ADDR']]]
@@ -53,10 +50,7 @@ module Radd
     class << self
       def active
         exclude(ip: nil)
-      end
-
-      def authorize(name, password)
-      end
+      end      
     end
 
     def validate
@@ -92,17 +86,16 @@ module Radd
     end
 
     def call
-byebug
-
       raise Forbidden unless record
       raise InvalidRequest unless ip
-      raise UpdateError unless record.update(ip: ip)
+      record.ip = ip
+      record.save
       result = update_zone
       [200, {'Content-Type' => 'text/plain'}, ["OK\n#{result}"]]
     rescue RaddError => boom
       status = case boom
-      when InvalidRequest then 422
-      when Forbidden      then 403
+      when InvalidRequest, Sequel::ValidationFailed then 422
+      when Forbidden then 403
       else
         500
       end
@@ -111,10 +104,10 @@ byebug
       respond 500, e.message
     end
 
-    #  private
+    private
 
     def name
-      env['REMOTE_USER'] # ['radd.auth.name']
+      env['REMOTE_USER']
     end
 
     def respond(status, body)
@@ -125,9 +118,9 @@ byebug
       zonefile = Radd.base.read
       zonefile << "\n; BEGIN radd dynamic hosts\n"
       records = Record.active.all
-      tab = (records.map(&:name).map(&:size).max || 32)
+      tab = [records.map(&:name).map(&:size).max, 30].compact.max
       records.each do |record|
-        zonefile << "#{record.name.ljust(tab)}    IN    A    #{record.ip}\n"
+        zonefile << "#{record.name.ljust(tab)} IN      A       #{record.ip}\n"
       end
       zonefile
     end

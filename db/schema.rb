@@ -1,10 +1,13 @@
-require 'sequel'
+require_relative '../radd'
 
-DB = Sequel.sqlite(File.join(File.dirname(__FILE__), 'radd.db'))
-
-DB.create_table :records do
-  String :name, primary_key: true
-  String :crypted_password
-  String :ip
-  DateTime :updated_at
+if DB.tables.include?(:records)
+  puts "Schema exists, skipping"
+else
+  DB.create_table :records do
+    String    :name, primary_key: true
+    String    :password_hash
+    String    :ip
+    DateTime  :updated_at
+  end
+  puts "Created schema"
 end
