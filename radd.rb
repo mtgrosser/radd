@@ -14,12 +14,12 @@ module Radd
       root.join('zone')
     end
 
-    def base
-      zone.join('radd.base')
+    def zonefile_base
+      zone.join('radd.zone.base')
     end
 
-    def file
-      data.join('radd.zone')
+    def zonefile
+      zone.join('radd.zone')
     end
 
     def valid_ip?(ip)
@@ -87,11 +87,11 @@ module Radd
 
     def call
       raise Forbidden unless record
-      raise InvalidRequest unless ip
+      raise InvalidRequest.new('Invalid IP address') unless ip
       record.ip = ip
       record.save
-      result = update_zone
-      [200, {'Content-Type' => 'text/plain'}, ["OK\n#{result}"]]
+      update_zone
+      [200, {'Content-Type' => 'text/plain'}, ["OK #{ip}"]]
     rescue RaddError => boom
       status = case boom
       when InvalidRequest, Sequel::ValidationFailed then 422
@@ -99,9 +99,9 @@ module Radd
       else
         500
       end
-      respond status, boom.message
+      respond status, "ERROR #{boom.message}"
     rescue Exception => e
-      respond 500, e.message
+      respond 500, "ERROR"
     end
 
     private
@@ -111,18 +111,19 @@ module Radd
     end
 
     def respond(status, body)
-      [status, {'Content-Type' => 'text/plain'}, ["#{body}\n"]]
+      [status, {'Content-Type' => 'text/plain'}, ["#{status} #{body}\n"]]
     end
 
     def update_zone
-      zonefile = Radd.base.read
+      zonefile = Radd.zonefile_base.read
       zonefile << "\n; BEGIN radd dynamic hosts\n"
       records = Record.active.all
       tab = [records.map(&:name).map(&:size).max, 30].compact.max
       records.each do |record|
         zonefile << "#{record.name.ljust(tab)} IN      A       #{record.ip}\n"
       end
-      zonefile
+      Radd.zonefile.open('w') { |f| f << zonefile }
+      system('knotc reload') or raise UpdateError.new('Zone update failed')
     end
   end
 end
