@@ -2,9 +2,15 @@ GEM
   remote: https://rubygems.org/
   specs:
     bcrypt (3.1.7)
+    daemons (1.1.9)
+    eventmachine (1.0.3)
     rack (1.5.2)
     sequel (4.12.0)
     sqlite3 (1.3.9)
+    thin (1.6.2)
+      daemons (>= 1.0.9)
+      eventmachine (>= 1.0.0)
+      rack (>= 1.0.0)
 
 PLATFORMS
   ruby
@@ -14,3 +20,4 @@ DEPENDENCIES
   rack
   sequel
   sqlite3
+  thin
