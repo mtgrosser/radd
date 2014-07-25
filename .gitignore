@@ -26,5 +26,4 @@ config/thin.yml
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
 
-/zone/*.base
-/zone/*.zone
+radd.yml

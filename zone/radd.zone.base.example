@@ -1,8 +1,0 @@
-$ORIGIN domains.example.com.    ; designates the start of this zone file in the namespace
-$TTL 60s                        ; default expiration time of all resource records without their own TTL value
-domains.example.com. 600 IN SOA ns.example.com. hostmaster.example.com. (2 600 300 604800 600)
-
-                                       NS      ns.example.com.
-
-                               IN      A       1.2.3.4
-

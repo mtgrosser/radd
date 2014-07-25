@@ -1,46 +1,68 @@
 require 'pathname'
+require 'yaml'
 require 'sequel'
 require 'resolv'
 require 'bcrypt'
+require 'rubydns'
+
+DB = Sequel.sqlite(Pathname.new(__FILE__).dirname.join('db', 'radd.sqlite3').to_s)
 
 module Radd
+  class RaddError < StandardError; end
+  class ConfigurationError < StandardError; end
+  class Forbidden < RaddError; end
+  class InvalidRequest < RaddError; end
+  class UpdateError < RaddError; end
+
+  CONFIG = YAML.load(Pathname.new(__FILE__).dirname.join('radd.yml').read)
+
   class << self
-    def root
-      Pathname.new(__FILE__).dirname
+    def domain
+      CONFIG['domain']
     end
 
-    def zone
-      root.join('zone')
+    def ip
+      CONFIG['ip']
     end
 
-    def zonefile_base
-      zone.join('radd.zone.base')
+    def port
+      CONFIG['port'] || 5300
     end
 
-    def zonefile
-      zone.join('radd.zone')
-    end
-
+    # Check whether +ip+ is a valid IP address string
     def valid_ip?(ip)
-      ip && ip.match(Resolv::IPv4::Regex)
+      !!(ip && ip.match(Resolv::IPv4::Regex))
     end
 
+    # Check whether +name+ is authorized with +password+
     def authorized?(name, password)
       return false unless record = Record.where(name: name).first
       BCrypt::Password.new(record.password_hash) == password
     end
+
+    # Query the database for +fqdn+
+    def query(fqdn)
+      return unless fqdn
+      return unless name = fqdn2name(fqdn)
+      return unless record = Record.active.where(name: name).first
+      record.ip
+    end
+
+    private
+
+    def fqdn2name(fqdn)
+      if match = fqdn.downcase.match(/\A([a-z0-9-]{1,63})\.#{Regexp.escape(domain)}\z/)
+        match.captures[0]
+      end
+    end
   end
-end
 
-DB = Sequel.sqlite(Radd.root.join('db', 'radd.sqlite3').to_s)
+  # IP address query responder
+  IP = Proc.new do |env|
+    [200, {"Content-Type" => "text/plain"}, [env['REMOTE_ADDR']]]
+  end
 
-Radd::IP = Proc.new do |env|
-  [200, {"Content-Type" => "text/plain"}, [env['REMOTE_ADDR']]]
-end
-
-module Radd
   class RaddError < StandardError; end
-
   class Forbidden < RaddError; end
   class InvalidRequest < RaddError; end
   class UpdateError < RaddError; end
@@ -49,7 +71,7 @@ module Radd
     class << self
       def active
         exclude(ip: nil)
-      end      
+      end
     end
 
     def password=(password)
@@ -93,7 +115,6 @@ module Radd
       raise InvalidRequest.new('Invalid IP address') unless ip
       record.ip = ip
       record.save
-      update_zone
       [200, {'Content-Type' => 'text/plain'}, ["OK #{ip}"]]
     rescue RaddError => boom
       status = case boom
@@ -117,16 +138,28 @@ module Radd
       [status, {'Content-Type' => 'text/plain'}, ["#{status} #{body}\n"]]
     end
 
-    def update_zone
-      zonefile = Radd.zonefile_base.read
-      zonefile << "\n; BEGIN radd dynamic hosts\n"
-      records = Record.active.all
-      tab = [records.map(&:name).map(&:size).max, 30].compact.max
-      records.each do |record|
-        zonefile << "#{record.name.ljust(tab)} IN      A       #{record.ip}\n"
-      end
-      Radd.zonefile.open('w') { |f| f << zonefile }
-      system('knotc reload') or raise UpdateError.new('Zone update failed')
-    end
   end
+end
+
+class Radd::Server < RubyDNS::Server
+  def process(name, resource_class, transaction)
+    name = name.downcase
+    if Resolv::DNS::Resource::IN::A == resource_class
+      if Radd.domain == name
+        ip = Radd.ip
+      else
+        ip = Radd.query(name)
+      end
+    end
+    return transaction.respond!(ip) if ip
+    transaction.fail!(:NXDomain)
+  end
+end
+
+raise Radd::ConfigurationError, 'domain missing from radd.yml' unless Radd.domain
+raise Radd::ConfigurationError, 'invalid ip in radd.yml' unless Radd.valid_ip?(Radd.ip)
+puts "Starting Radd server for #{Radd.domain} on #{Radd.ip}:#{Radd.port}"
+
+EventMachine.run do
+  Radd::Server.new({}).run(listen: [[:udp, Radd.ip, Radd.port], [:tcp, Radd.ip, Radd.port]])
 end
