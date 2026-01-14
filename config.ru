@@ -1,4 +1,4 @@
-require_relative 'radd'
+require 'radd'
 
 map '/ip' do
   run Radd::IP

@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+Warning[:experimental] = false
+
+require 'bundler/setup'
+require 'radd'
+require 'radd/cli'
+
+Radd::Cli.start

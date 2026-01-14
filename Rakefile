@@ -1,9 +1,16 @@
-require_relative 'radd'
-
 namespace :radd do
+
+  namespace :db do
+    desc 'Create database'
+    task :create do
+      load './db/schema.rb'
+    end
+  end
   
   desc 'Add record'
   task :add do
+    require_relative 'lib/radd'
+    
     print "Enter name: "
     name = STDIN.gets.chomp
     print "Password: "
@@ -19,6 +26,8 @@ namespace :radd do
   
   desc 'List all records'
   task :list do
+    require_relative 'lib/radd'
+    
     puts
     records = Radd::Record.all
     tab = [records.map(&:name).map(&:size).max, 24].compact.max
