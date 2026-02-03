@@ -5,7 +5,6 @@ module Radd::Cli
   class << self
 
     def start
-      
       config = {}
       parser = OptionParser.new
       parser.banner = 'Usage: radd -i IP -d DOMAIN [options]'
