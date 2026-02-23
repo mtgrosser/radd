@@ -5,7 +5,7 @@ require 'radd/version'
 Gem::Specification.new do |s|
   s.name          = 'radd'
   s.version       = Radd::VERSION
-  s.date          = '2026-01-14'
+  s.date          = '2026-02-23'
   s.summary       = 'Roll your own dynamic DNS'
   s.description   = 'Minimal dynamic DNS service'
   s.authors       = ['Matthias Grosser']
