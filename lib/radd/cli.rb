@@ -5,7 +5,7 @@ module Radd::Cli
   class << self
 
     def start
-      
+
       config = {}
       parser = OptionParser.new
       parser.banner = 'Usage: radd -i IP -d DOMAIN [options]'
@@ -22,19 +22,23 @@ module Radd::Cli
         config['dns_port'] = port
       end
       parser.parse!
-      
+
       Radd.configure!(config)
       puts "Starting Radd server for #{Radd.domain}"
-      
+
       dns, http = Radd::Nameserver.new, Radd::Webserver.new
-    
-      # Run on an async server:
+
       Async do
-        http_task = http.run
-        dns_task = dns.run
+        dns_task, http_task = dns.run, http.run
+
+        watchdog = Async do
+          sleep(1) while !http_task.failed? && !dns_task.failed?
+          puts "Task failed!"
+          exit(1)
+        end
       end
     end
-  
+
   end
 
 end
