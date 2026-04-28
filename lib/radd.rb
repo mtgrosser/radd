@@ -10,53 +10,25 @@ require 'async/http/endpoint'
 require 'protocol/rack/adapter'
 
 require_relative 'radd/version'
+require_relative 'radd/errors'
+require_relative 'radd/config'
 require_relative 'radd/ip'
-require_relative 'radd/db'
-require_relative 'radd/record'
 require_relative 'radd/update'
 require_relative 'radd/nameserver'
 require_relative 'radd/webserver'
 require_relative 'radd/app'
+require_relative 'radd/cli'
 
 module Radd
-  class RaddError < StandardError; end
-  class ConfigurationError < StandardError; end
-  class Forbidden < RaddError; end
-  class InvalidRequest < RaddError; end
-  class UpdateError < RaddError; end
-
   class << self
-    def configure!(config)
-      @config = config.slice(*%w[domain ip host dns_port http_port])
-      raise Radd::ConfigurationError, 'domain missing' unless Radd.domain
-      raise Radd::ConfigurationError, 'invalid IP' unless Radd.valid_ip?(Radd.ip)
+    def root=(path)
+      @root = Pathname.new(path)
     end
     
-    def domain
-      config['domain']
-    end
-
-    def ip
-      config['ip']
+    def root
+      @root ||= Pathname.new(Dir.pwd)
     end
     
-    def host
-      config['host'] || '127.0.0.1'
-    end
-
-    def dns_port
-      config['dns_port'] || 5300
-    end
-    
-    def http_port
-      config['http_port'] || 3000
-    end
-
-    # Check whether +ip+ is a valid IP address string
-    def valid_ip?(ip)
-      !!(ip && ip.match(Resolv::IPv4::Regex))
-    end
-
     # Check whether +name+ is authorized with +password+
     def authorized?(name, password)
       return false unless record = Record.where(name: name).first
@@ -71,10 +43,6 @@ module Radd
       record.ip
     end
     
-    def run
-      
-    end
-
     private
 
     def config

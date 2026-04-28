@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    radd (1.1.0)
+    radd (1.2.0)
       async-dns
       async-http
       bcrypt
@@ -11,6 +11,7 @@ PATH
       rake
       sequel
       sqlite3
+      yaml
 
 GEM
   remote: https://rubygems.org/
@@ -92,6 +93,7 @@ GEM
     stringio (3.2.0)
     traces (0.18.2)
     tsort (0.2.0)
+    yaml (0.4.0)
 
 PLATFORMS
   x86_64-darwin
@@ -99,3 +101,6 @@ PLATFORMS
 DEPENDENCIES
   irb
   radd!
+
+BUNDLED WITH
+  4.0.3

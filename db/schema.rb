@@ -1,3 +1,4 @@
+require_relative '../lib/config'
 require_relative '../lib/radd/db'
 
   DB.create_table? :records do

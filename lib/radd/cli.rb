@@ -4,25 +4,21 @@ module Radd::Cli
 
   class << self
 
-    def start
+    def load_config
       config = {}
       parser = OptionParser.new
-      parser.banner = 'Usage: radd -i IP -d DOMAIN [options]'
-      parser.on('--ip IP', 'Public IP address') do |ip|
-        config['ip'] = ip
+      parser.banner = 'Usage: radd --config [FILE]'
+      parser.on('--config FILE', 'Config file') do |file|
+        config['file'] = file
       end
-      parser.on('--domain DOMAIN', 'Root FQDN') do |domain|
-        config['domain'] = domain
-      end
-      parser.on('--http-port [PORT]', 'HTTP port') do |port|
-        config['http_port'] = port
-      end
-      parser.on('--dns-port [PORT]', 'DNS port') do |port|
-        config['dns_port'] = port
-      end
+
       parser.parse!
 
-      Radd.configure!(config)
+      Radd.configure!(config['file'])
+    end
+
+    def start
+      load_config
       puts "Starting Radd server for #{Radd.domain}"
 
       dns, http = Radd::Nameserver.new, Radd::Webserver.new
