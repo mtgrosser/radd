@@ -15,6 +15,13 @@ module Radd
     end
 
     def ip
+      @ip ||= begin
+        addr = env['rack.request'].params['ip'] || env['REMOTE_ADDR']
+        addr && Radd.valid_ip?(addr) && addr
+      end
+    end
+
+    def remote_ip
       addr = env['REMOTE_ADDR']
       addr && Radd.valid_ip?(addr) && addr
     end
@@ -24,6 +31,7 @@ module Radd
       raise InvalidRequest.new('Invalid IP address') unless ip
       record.ip = ip
       record.save
+      Radd.logger.info "Updated record #{record.name} to #{ip} from #{remote_ip}"
       [200, {'Content-Type' => 'text/plain'}, ["OK #{ip}"]]
     rescue RaddError => boom
       status = case boom
@@ -32,8 +40,10 @@ module Radd
       else
         500
       end
+      Radd.logger.error boom
       respond status, "ERROR #{boom.message}"
     rescue Exception => e
+      Radd.logger.error e
       respond 500, "ERROR"
     end
 

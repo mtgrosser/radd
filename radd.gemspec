@@ -5,7 +5,7 @@ require 'radd/version'
 Gem::Specification.new do |s|
   s.name          = 'radd'
   s.version       = Radd::VERSION
-  s.date          = '2026-04-28'
+  s.date          = '2026-04-29'
   s.summary       = 'Roll your own dynamic DNS'
   s.description   = 'Minimal dynamic DNS service'
   s.authors       = ['Matthias Grosser']
@@ -19,16 +19,17 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 4.0.0'
 
-  s.add_dependency 'rake'
   s.add_dependency 'yaml'
+  s.add_dependency 'logger'
   s.add_dependency 'optparse'
   s.add_dependency 'async-http'
   s.add_dependency 'protocol-rack'
   s.add_dependency 'async-dns'
-
-  s.add_development_dependency 'irb'
   s.add_dependency 'rack'
   s.add_dependency 'sequel'
   s.add_dependency 'sqlite3'
   s.add_dependency 'bcrypt'
+
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'irb'
 end

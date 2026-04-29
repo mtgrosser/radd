@@ -1,44 +1,34 @@
 module Radd
 
   class << self
-    def configure!(file)
+    attr_reader :domain, :ip, :db, :http_host, :http_port, :dns_host, :dns_port, :ttl
+    
+    def configure!(file, skip_models: false, skip_db: false)
       file_path = Pathname.new(file || 'radd.yml')
       file_path = Radd.root + file_path unless file_path.absolute?
-      raise Radd::ConfigurationError, "could not open config file #{file_path}" unless file_path.file?
-      @config = YAML.load(file_path.read).slice(*%w[domain ip host dns_port http_port db])
-      raise Radd::ConfigurationError, 'domain missing' unless Radd.domain
-      raise Radd::ConfigurationError, 'invalid IP' unless Radd.valid_ip?(Radd.ip)
-      db_path = Pathname.new(@config.delete('db') || 'db/radd.sqlite3')
+      raise ConfigurationError, "could not open config file #{file_path}" unless file_path.file?
+      config = YAML.load(file_path.read)
+      raise ConfigurationError, 'domain missing' unless config['domain']
+      @domain = config['domain']
+      raise ConfigurationError, 'invalid IP' unless Radd.valid_ip?(config['ip'])
+      @ip = config['ip']
+      uri = URI.parse("http://#{config['http']}")
+      @http_host = uri.host || '127.0.0.1'
+      @http_port = uri.port || 3003
+      uri = URI.parse("dns://#{config['dns']}")
+      @dns_host = uri.host || '0.0.0.0'
+      @dns_port = uri.port || 53
+      raise ConfigurationError, 'invalid TTL' if config['ttl'] && config['ttl'] < 1
+      @ttl = config['ttl'] || 300
+      db_path = Pathname.new(config['db'] || 'radd.sqlite3')
       db_path = Radd.root + db_path unless db_path.absolute?
-      @config['db'] = db_path
-      raise Radd::ConfigurationError, 'invalid database' unless Radd.db.file?
+      @db = db_path
+      raise ConfigurationError, 'invalid database' if !skip_db && !Radd.db.file?
+      #
       # Late loading required by Sequel architecture
+      #
       require_relative 'db'
-      require_relative 'record'
-    end
-    
-    def domain
-      @config['domain']
-    end
-
-    def ip
-      @config['ip']
-    end
-    
-    def db
-      @config['db']
-    end
-    
-    def host
-      @config['host'] || '127.0.0.1'
-    end
-
-    def dns_port
-      @config['dns_port'] || 5300
-    end
-    
-    def http_port
-      @config['http_port'] || 3000
+      require_relative 'record' unless skip_models
     end
 
     # Check whether +ip+ is a valid IP address string
