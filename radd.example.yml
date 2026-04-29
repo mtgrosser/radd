@@ -1,5 +1,5 @@
-ip: 127.0.0.1
+ip: 10.1.2.3
+http: 127.0.0.1:3003
+dns: 0.0.0.0:53
 domain: example.com
-db: db/radd.sqlite3
-http_port: 8088
-dns_port: 5300
+db: radd.sqlite3
