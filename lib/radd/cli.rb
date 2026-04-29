@@ -21,11 +21,17 @@ module Radd::Cli
 
     def run
       command = ARGV.shift
-      unless COMMANDS.include?(command)
+      if COMMANDS.include?(command)
+        send(command)
+      elsif command.nil?
+        help
+        exit 1
+      elsif '--help' == command
+        help
+      else
         puts "Unknown command #{command}"
-        exit(1)
+        exit 1
       end
-      send(command)
     end
 
     def help
@@ -37,6 +43,7 @@ module Radd::Cli
 
           setup        Create the database
           add          Add new record
+          delete       Delete record
           list         List available records
           start        Run the server
       
