@@ -16,13 +16,13 @@ module Radd
 
     def ip
       @ip ||= begin
-        addr = env['rack.request'].params['ip'] || env['REMOTE_ADDR']
+        addr = env['rack.request'].params['ip'] || remote_ip
         addr && Radd.valid_ip?(addr) && addr
       end
     end
 
     def remote_ip
-      addr = env['REMOTE_ADDR']
+      addr = env['rack.request'].ip
       addr && Radd.valid_ip?(addr) && addr
     end
 
