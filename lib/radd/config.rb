@@ -22,8 +22,8 @@ module Radd
       raise ConfigurationError, 'invalid TTL' if config['ttl'] && config['ttl'] < 1
       @ttl = config['ttl'] || 300
       raise ConfigurationError, 'master name missing' unless config['mname']
-      @mname = config['mname']
-      @rname = config['rname'] || "hostmaster.#{domain}"
+      @mname = config['mname'].split('.').freeze
+      @rname = encode_email(config['rname'] || "hostmaster@#{domain}").freeze
       db_path = Pathname.new(config['db'] || 'radd.sqlite3')
       db_path = Radd.root + db_path unless db_path.absolute?
       @db = db_path
@@ -39,6 +39,13 @@ module Radd
     def valid_ip?(ip)
       !!(ip && ip.match(Resolv::IPv4::Regex))
     end
+
+    private
+
+    def encode_email(email)
+      addr, domain = email.split('@')
+      [addr, *domain.split('.')]
+    end
   end
-  
+
 end
