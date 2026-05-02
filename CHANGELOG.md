@@ -1,7 +1,11 @@
-* 0.2.0
+## 1.4.0
 
-Use RubyDNS
+* Support SOA
 
-* 0.1.0
+## 0.2.0
 
-Use knot DNS
+* Use RubyDNS
+
+## 0.1.0
+
+* Use knot DNS

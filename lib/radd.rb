@@ -52,6 +52,10 @@ module Radd
       record.ip
     end
 
+    def serial
+      Radd.db&.stat&.mtime.to_i
+    end
+
     private
 
     def config

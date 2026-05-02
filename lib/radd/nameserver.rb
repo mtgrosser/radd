@@ -5,14 +5,13 @@ class Radd::Nameserver < Async::DNS::Server
   
   def process(name, resource_class, transaction)
     name = name.downcase
-    if Resolv::DNS::Resource::IN::A == resource_class
-      if Radd.domain == name
-        ip = Radd.ip
-      else
-        ip = Radd.query(name)
-      end
+    case resource_class
+    when Resolv::DNS::Resource::IN::A
+      ip = Radd.domain == name ? Radd.ip : Radd.query(name)
+      return transaction.respond!(ip, ttl: Radd.ttl) if ip
+    when Resolv::DNS::Resource::IN::SOA
+      return transaction.respond!(Radd.mname, Radd.rname, Radd.serial, 10800, 1800, 604800, 1800)
     end
-    return transaction.respond!(ip, ttl: Radd.ttl) if ip
     transaction.fail!(:NXDomain)
   end
 end

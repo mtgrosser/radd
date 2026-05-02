@@ -1,7 +1,8 @@
 module Radd
 
   class << self
-    attr_reader :domain, :ip, :db, :http_host, :http_port, :dns_host, :dns_port, :ttl
+    attr_reader :domain, :ip, :db, :http_host, :http_port, :dns_host, :dns_port, :ttl,
+                :mname, :rname
     
     def configure!(file, skip_models: false, skip_db: false)
       file_path = Pathname.new(file || 'radd.yml')
@@ -20,6 +21,9 @@ module Radd
       @dns_port = uri.port || 53
       raise ConfigurationError, 'invalid TTL' if config['ttl'] && config['ttl'] < 1
       @ttl = config['ttl'] || 300
+      raise ConfigurationError, 'master name missing' unless config['mname']
+      @mname = config['mname']
+      @rname = config['rname'] || "hostmaster.#{domain}"
       db_path = Pathname.new(config['db'] || 'radd.sqlite3')
       db_path = Radd.root + db_path unless db_path.absolute?
       @db = db_path

@@ -1,12 +1,39 @@
-radd
-====
+# radd
 
 Minimal dynamic DNS service
 
-rake radd:db:create
 
-rake radd:add
+## Installation
 
-rake radd:list
+```
+gem install radd
+```
 
-rake radd:delete
+## Configuration
+
+```yaml
+# radd.yml
+ip: 10.1.2.3
+http: 127.0.0.1:3000
+dns: 0.0.0.0:53
+domain: example.com
+mname: ns.example.com
+rname: hostmaster.example.com
+db: radd.sqlite3
+```
+
+## Usage
+
+```
+radd COMMAND [--config FILE]
+```
+
+You must specify one of the following commands:
+
+```
+setup        Create the database
+add          Add new record
+delete       Delete record
+list         List available records
+start        Run the server
+```
