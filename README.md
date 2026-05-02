@@ -1,3 +1,5 @@
+[![Gem Version](https://badge.fury.io/rb/radd.svg)](http://badge.fury.io/rb/radd)
+
 # radd
 
 Minimal dynamic DNS service
