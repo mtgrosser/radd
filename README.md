@@ -18,7 +18,7 @@ gem install radd
 ip: 10.1.2.3
 http: 127.0.0.1:3000
 dns: 0.0.0.0:53
-domain: example.com
+domain: ddns.example.com
 mname: ns.example.com
 rname: hostmaster@example.com
 db: radd.sqlite3
@@ -67,10 +67,20 @@ start        Run the server
 
 ## Deployment
 
+### Webserver
 The HTTP server should be exposed via a reverse proxy like Nginx, which provides SSL encryption.
 
-The DNS ports (53/udp, 53/tcp) can be exposed directly when using `systemd` 
+### Nameserver
+The DNS ports (53/udp, 53/tcp) can be exposed directly when using `systemd` to run `radd`.
+The provided unit file (`radd.service`) includes the necessary directives which enable an unprivileged user
+to access port 53.
 
+### DNS configuration
+You need to set your dynamic DNS server as the authoritative nameserver for the used (sub)domain:
+
+```
+NS  ddns.example.com   ns.example.com.   86400
+```
 
 ## Updating a record via HTTP
 
@@ -81,9 +91,10 @@ The IP address can be supplied by the `ip` parameter, otherwise, the remote IP o
 
 ```
 # use remote IP
-https://dyndns.example.com/update
+curl --user "hostname:password" https://ddns.example.com/update
 ```
 
 ```
-https://dyndns.example.com/update?ip=10.20.30.40
+# use given IP
+curl --user "hostname:password" https://ddns.example.com/update?ip=10.20.30.40
 ```
