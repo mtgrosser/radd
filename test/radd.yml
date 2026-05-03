@@ -1,0 +1,8 @@
+origin: domains.example.com
+ip: 10.1.2.3
+mname: ns.example.com
+rname: hostmaster.example.com
+ttl: 300
+http: 127.0.0.1:3003
+dns: 0.0.0.0:5300
+db: radd.sqlite3
