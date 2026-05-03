@@ -22,6 +22,6 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
-    - run: cp radd.example.yml radd.yml
-    - run: bundle exec radd setup
-    - run: bundle exec radd start
+    - run: bundle exec radd setup --config test/radd.yml
+    - run: bin/radd add --config test/radd.yml < test/add.input
+    - run: bundle exec radd start --config test/radd.yml
