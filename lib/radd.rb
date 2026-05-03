@@ -63,7 +63,7 @@ module Radd
     end
 
     def fqdn2name(fqdn)
-      if match = fqdn.downcase.match(/\A([a-z0-9-]{1,63})\.#{Regexp.escape(origin)}\z/)
+      if match = fqdn.to_s.downcase.match(/\A([a-z0-9-]{1,63})\.#{Regexp.escape(origin.to_s)}\z/)
         match.captures[0]
       end
     end

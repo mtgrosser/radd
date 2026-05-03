@@ -10,7 +10,7 @@ module Radd
       raise ConfigurationError, "could not open config file #{file_path}" unless file_path.file?
       config = YAML.load(file_path.read)
       raise ConfigurationError, 'origin missing' unless config['origin']
-      @origin = config['origin']
+      @origin = Resolv::DNS::Name.create(config['origin'])
       raise ConfigurationError, 'invalid IP' unless Radd.valid_ip?(config['ip'])
       @ip = config['ip']
       uri = URI.parse("http://#{config['http']}")

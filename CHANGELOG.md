@@ -1,3 +1,7 @@
+# 1.6.0
+
+* Don't send NXDOMAIN for non-subdomains
+
 # 1.5.2
 
 * Add tests

@@ -42,6 +42,14 @@ class RaddTest < Minitest::Test
     assert_equal "OK 127.0.0.1\n", `curl --no-progress-meter --user "foobar:password" http://127.0.0.1:3003/update`
   end
 
+  def test_recursion_refused
+    assert_match /REFUSED/, dig('google.com', :A, short: false)
+  end
+
+  def test_non_existant_name_returns_nxdomain
+    assert_match /NXDOMAIN/, dig('barfoo.ddns.example.com', :A, short: false)
+  end
+
   private
 
   def assert_dig(expect, query, type = :A)
@@ -49,7 +57,7 @@ class RaddTest < Minitest::Test
     assert_equal expect, result, "Expected dig #{query} #{type} to return '#{expect}', but got '#{result}'"
   end
 
-  def dig(query, type)
-    `dig @127.0.0.1 +short -p 5300 #{query} #{type}`.strip
+  def dig(query, type, short: true)
+    `dig @127.0.0.1 #{'+short' if short} -p 5300 #{query} #{type}`.strip
   end
 end
