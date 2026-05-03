@@ -1,4 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/radd.svg)](http://badge.fury.io/rb/radd)
+[![build](https://github.com/mtgrosser/radd/actions/workflows/build.yml/badge.svg)](https://github.com/mtgrosser/radd/actions/workflows/build.yml)
 
 # radd
 
