@@ -1,3 +1,8 @@
+# 1.5.0
+
+* Refactor configuration
+* Provide NS record
+
 ## 1.4.1
 
 * Support SOA

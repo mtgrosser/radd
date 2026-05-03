@@ -1,7 +1,7 @@
 module Radd
 
   class << self
-    attr_reader :domain, :ip, :db, :http_host, :http_port, :dns_host, :dns_port, :ttl,
+    attr_reader :origin, :ip, :db, :http_host, :http_port, :dns_host, :dns_port, :ttl,
                 :mname, :rname
     
     def configure!(file, skip_models: false, skip_db: false)
@@ -9,8 +9,8 @@ module Radd
       file_path = Radd.root + file_path unless file_path.absolute?
       raise ConfigurationError, "could not open config file #{file_path}" unless file_path.file?
       config = YAML.load(file_path.read)
-      raise ConfigurationError, 'domain missing' unless config['domain']
-      @domain = config['domain']
+      raise ConfigurationError, 'origin missing' unless config['origin']
+      @origin = config['origin']
       raise ConfigurationError, 'invalid IP' unless Radd.valid_ip?(config['ip'])
       @ip = config['ip']
       uri = URI.parse("http://#{config['http']}")
@@ -22,8 +22,8 @@ module Radd
       raise ConfigurationError, 'invalid TTL' if config['ttl'] && config['ttl'] < 1
       @ttl = config['ttl'] || 300
       raise ConfigurationError, 'master name missing' unless config['mname']
-      @mname = config['mname'].split('.').freeze
-      @rname = encode_email(config['rname'] || "hostmaster@#{domain}").freeze
+      @mname = Resolv::DNS::Name.create(config['mname'])
+      @rname = Resolv::DNS::Name.create(config['rname'] || "hostmaster@#{origin}")
       db_path = Pathname.new(config['db'] || 'radd.sqlite3')
       db_path = Radd.root + db_path unless db_path.absolute?
       @db = db_path
@@ -38,13 +38,6 @@ module Radd
     # Check whether +ip+ is a valid IP address string
     def valid_ip?(ip)
       !!(ip && ip.match(Resolv::IPv4::Regex))
-    end
-
-    private
-
-    def encode_email(email)
-      addr, domain = email.split('@')
-      [addr, *domain.split('.')]
     end
   end
 

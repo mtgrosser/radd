@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    radd (1.4.0)
+    radd (1.5.0)
       async-dns
       async-http
       bcrypt

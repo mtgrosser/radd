@@ -15,35 +15,36 @@ gem install radd
 
 ```yaml
 # radd.yml
+origin: domains.example.com
 ip: 10.1.2.3
+mname: ns.example.com
+rname: hostmaster.example.com
+ttl: 300
 http: 127.0.0.1:3000
 dns: 0.0.0.0:53
-domain: ddns.example.com
-mname: ns.example.com
-rname: hostmaster@example.com
 db: radd.sqlite3
 ```
 
+#### origin
+Your domain where subdomains are the dynamic hostnames
+
 #### ip
 The nameserver's public IP
+
+#### mname
+Hostname of the nameserver, must not be a subdomain of `origin`
+
+#### rname
+Email address of the nameserver contact, default: `hostmaster.ORIGIN`
+
+#### ttl
+TTL of the dynamic A records, default: `300`
 
 #### http
 `ÌP:port` the HTTP server should listen on, default: `127.0.0.1:3003`
 
 #### dns
 `IP:port` the DNS server should listen on, default: `0.0.0.0:53`
-
-#### domain
-Your domain where subdomains are the dynamic hostnames
-
-#### mname
-Hostname of the nameserver
-
-#### rname
-Email address of the nameserver contact, default: `hostmaster@DOMAIN`
-
-#### ttl
-TTL of the dynamic A records
 
 #### db
 Path to the zone db, default: `radd.sqlite3`

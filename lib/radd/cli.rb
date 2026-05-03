@@ -100,7 +100,7 @@ module Radd::Cli
 
     def start
       load_config
-      puts "Starting Radd server for #{Radd.domain}"
+      puts "Starting Radd server for #{Radd.origin}"
 
       dns, http = Radd::Nameserver.new, Radd::Webserver.new
 
