@@ -24,6 +24,6 @@ jobs:
         bundler-cache: true
     - run: bin/radd setup --config test/radd.yml
     - run: bin/radd add --config test/radd.yml < test/add.input
-    - run: bin/radd start --config test/radd.yml & SERVER_PID=$!
+    - run: bin/radd start --config test/radd.yml & export SERVER_PID=$!
     - run: bundle exec ruby test/radd_test.rb
     - run: kill $SERVER_PID
