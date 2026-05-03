@@ -9,7 +9,7 @@ module Radd
       name = name.downcase
       # NOTE: do not use case..when, as resource classes are not identical
       if Resolv::DNS::Resource::IN::A == resource_class
-        ip = Radd.mname == name ? Radd.ip : Radd.query(name)
+        ip = [Radd.mname, Radd.origin].include?(name) ? Radd.ip : Radd.query(name)
         return transaction.respond!(ip, ttl: Radd.ttl) if ip
       elsif resource_class <= Resolv::DNS::Resource::SOA && Radd.origin == name
         # mname, rname, serial, refresh, retry_, expire, minimum
