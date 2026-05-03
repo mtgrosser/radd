@@ -4,5 +4,5 @@ mname: ns.example.com
 rname: hostmaster.example.com
 ttl: 300
 http: 127.0.0.1:3003
-dns: 0.0.0.0:5300
-db: radd.sqlite3
+dns: 127.0.0.1:5300
+db: test/radd.sqlite3

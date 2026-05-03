@@ -32,7 +32,7 @@ module Radd
       record.ip = ip
       record.save
       Radd.logger.info "Updated record #{record.name} to #{ip} from #{remote_ip}"
-      [200, {'Content-Type' => 'text/plain'}, ["OK #{ip}"]]
+      [200, {'Content-Type' => 'text/plain'}, ["OK #{ip}\n"]]
     rescue RaddError => boom
       status = case boom
       when InvalidRequest, Sequel::ValidationFailed then 422
