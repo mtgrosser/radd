@@ -16,7 +16,7 @@ gem install radd
 
 ```yaml
 # radd.yml
-origin: domains.example.com
+origin: ddns.example.com
 ip: 10.1.2.3
 mname: ns.example.com
 rname: hostmaster.example.com

@@ -5,23 +5,23 @@ require 'minitest/autorun'
 class RaddTest < Minitest::Test
 
   def test_origin_a
-    assert_dig '10.1.2.3', 'domains.example.com'
+    assert_dig '10.1.2.3', 'ddns.example.com'
   end
 
   def test_authoritative_ns
-    assert_dig 'ns.example.com.', 'domains.example.com', :NS
+    assert_dig 'ns.example.com.', 'ddns.example.com', :NS
   end
 
   def test_soa
     assert_match /\Ans\.example\.com\. hostmaster\.example\.com\. \d+ 10800 1800 604800 1800\z/,
-                 dig('domains.example.com', :SOA)
+                 dig('ddns.example.com', :SOA)
   end
 
   def test_update
     assert_equal "OK 10.11.12.13\n", `curl --no-progress-meter --user "foobar:password" http://127.0.0.1:3003/update?ip=10.11.12.13`
-    assert_dig '10.11.12.13', 'foobar.domains.example.com'
+    assert_dig '10.11.12.13', 'foobar.ddns.example.com'
     assert_equal "OK 10.7.33.7\n", `curl --no-progress-meter --user "foobar:password" http://127.0.0.1:3003/update?ip=10.7.33.7`
-    assert_dig '10.7.33.7', 'foobar.domains.example.com'
+    assert_dig '10.7.33.7', 'foobar.ddns.example.com'
   end
 
   def test_unauthorized

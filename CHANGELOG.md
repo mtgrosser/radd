@@ -1,3 +1,7 @@
+# 1.5.2
+
+* Add tests
+
 # 1.5.1
 
 * Provide origin A record
