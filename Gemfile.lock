@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    radd (1.6.1)
+    radd (1.6.2)
       async-dns
       async-http
       bcrypt
@@ -108,5 +108,3 @@ DEPENDENCIES
   radd!
   rake
 
-BUNDLED WITH
-  4.0.3

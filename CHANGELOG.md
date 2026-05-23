@@ -1,3 +1,7 @@
+# 1.6.2
+
+* Send NOERROR for subdomains
+
 # 1.6.0
 
 * Don't send NXDOMAIN for non-subdomains

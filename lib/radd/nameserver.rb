@@ -17,7 +17,8 @@ module Radd
       elsif name.subdomain_of?(Radd.origin)
         case type
         when :A then return respond_a(transaction, Radd.query(name))
-        when :MX, :AAAA then return transaction.fail!(:NoError)
+        else
+          return transaction.fail!(:NoError)
         end
       end
       transaction.fail!(:Refused)
